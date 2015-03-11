@@ -1,21 +1,16 @@
-#![feature(macro_rules)]
-
-extern crate collections;
-
-use collections::HashMap;
-use std::string::String;
+use std::collections::HashMap;
 
 macro_rules! dict(
     ($($key:expr => $val:expr),*) => ({
-        let mut h = collections::HashMap::new();
+        let mut h = HashMap::new();
         $(
             h.insert($key, $val);
         )*
         h
     })
-)
+);
 
-#[deriving(Show)]
+#[derive(Debug, Copy)]
 enum Token {
     Plus, Minus
 }
@@ -39,9 +34,9 @@ impl Lexer {
         let mut toks = Vec::new();
         while text.len() != 0 {
             for (s, t) in self.toks.iter() {
-                if text.starts_with(s.as_slice()) {
+                if text.starts_with(&*s) {
                     toks.push(*t);
-                    text = text.slice_from(s.len());
+                    text = &text[s.len()..];
                 }
             }
         }
@@ -51,11 +46,11 @@ impl Lexer {
 }
 
 fn main() {
-    let toks = dict!["+" => Plus,
-                     "-" => Minus];
+    let toks = dict!["+" => Token::Plus,
+                     "-" => Token::Minus];
     let lexer = Lexer::new(&toks);
     let result_toks = lexer.analyze("+-");
     for tok in result_toks.iter() {
-        println!("{}", tok);
+        println!("{:?}", tok);
     }
 }
